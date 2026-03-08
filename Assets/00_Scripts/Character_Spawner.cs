@@ -1,20 +1,43 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Character_Spawner : MonoBehaviour
 {
 
     [SerializeField]
     private GameObject _spawn_Prefab;
+    [SerializeField]
+    private Monster _spawn_Monster_Prefab;
 
+    public static List<Vector2> move_list = new List<Vector2>();
     private List<Vector2> spawn_list = new List<Vector2>();
     private List<bool> spawn_list_Array = new List<bool>();
 
     private void Start()
     {
         Grid_Start();
+
+        for(int i=0; i<transform.childCount; i++)
+        {
+            move_list.Add(transform.GetChild(i).position);
+        }
+        StartCoroutine(Spawn_Monster_Coroutine());
     }
+
+    #region 몬스터 소환
+    private IEnumerator Spawn_Monster_Coroutine()
+    {
+        var go = Instantiate(_spawn_Monster_Prefab, move_list[0], Quaternion.identity);
+
+        yield return new WaitForSeconds(0.3f);
+
+        StartCoroutine(Spawn_Monster_Coroutine());
+    }
+
+
+    #endregion
 
     #region Make Grid
     private void Grid_Start()
@@ -41,6 +64,7 @@ public class Character_Spawner : MonoBehaviour
     }
     #endregion
 
+    #region 캐릭터 소환
     public void Summon()
     {
         int position_value = -1;
@@ -57,4 +81,5 @@ public class Character_Spawner : MonoBehaviour
 
         go.transform.position = spawn_list[position_value];
     }
+    #endregion
 }
