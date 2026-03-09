@@ -96,7 +96,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 16825171798088620}
-  - component: {fileID: 5603828782874460269}
+  - component: {fileID: 4044144933890760296}
   m_Layer: 0
   m_Name: Hero
   m_TagString: Untagged
@@ -121,7 +121,7 @@ Transform:
   - {fileID: 5936079305815561958}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5603828782874460269
+--- !u!114 &4044144933890760296
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,9 +130,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2494022340018819194}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b2f1e6baa69f6e468adade0afb9be6d, type: 3}
+  m_Script: {fileID: 11500000, guid: d9e1a745c1db3c845a0f4115193b0394, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackRange: 1
+  target: {fileID: 0}
+  monsterLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &5977940695218636103
 GameObject:
   m_ObjectHideFlags: 0
