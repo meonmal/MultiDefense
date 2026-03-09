@@ -1,25 +1,34 @@
 using System.Collections;
 using Unity.Android.Types;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Monster : Character
 {
-    public int HP;
+    public int HP, MaxHP;
 
     [SerializeField]
     private float moveSpeed;
+    [SerializeField]
+    private HitText hitText;
+    [SerializeField]
+    private Image m_Fill, m_Fill_Deco;
+
 
     private int target_Value = 0;
     private bool isDead = false;
 
     public override void Start()
     {
+        HP = MaxHP;
         base.Start();
     }
 
     private void Update()
     {
-        if(isDead == true)
+        m_Fill_Deco.fillAmount = Mathf.Lerp(m_Fill_Deco.fillAmount, m_Fill.fillAmount, Time.deltaTime * 2.0f);
+
+        if (isDead == true)
         {
             return;
         }
@@ -46,6 +55,8 @@ public class Monster : Character
         }
 
         HP -= damage;
+        m_Fill.fillAmount = (float)HP / (float)MaxHP;
+        Instantiate(hitText, transform.position, Quaternion.identity).Init(damage);
         if(HP < 0)
         {
             isDead = true;
