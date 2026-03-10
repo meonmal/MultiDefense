@@ -31,7 +31,9 @@ public class Character_Spawner : MonoBehaviour
     {
         var go = Instantiate(_spawn_Monster_Prefab, move_list[0], Quaternion.identity);
 
-        yield return new WaitForSeconds(0.3f);
+        GameManager.Instance.AddMonster(go);
+
+        yield return new WaitForSeconds(1f);
 
         StartCoroutine(Spawn_Monster_Coroutine());
     }
@@ -67,6 +69,14 @@ public class Character_Spawner : MonoBehaviour
     #region 캐릭터 소환
     public void Summon()
     {
+        if(GameManager.Instance.Money < GameManager.Instance.SummonCount)
+        {
+            return;
+        }
+
+        GameManager.Instance.Money -= GameManager.Instance.SummonCount;
+        GameManager.Instance.SummonCount += 2;
+
         int position_value = -1;
         var go = Instantiate(_spawn_Prefab);
         for( int i = 0; i < spawn_list_Array.Count; i++)
