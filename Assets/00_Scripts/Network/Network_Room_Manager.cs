@@ -1,45 +1,17 @@
 using System.Threading.Tasks;
-using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
-using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Network_Manager : MonoBehaviour
+public partial class Net_Mng : MonoBehaviour
 {
-    // Lobby -> 플레이어가 원하는 게임을 찾거나, 새 게임을 만들고 대기할 수 있다.
-    // Relay -> 매칭된 플레이어들의 Relay의 Join Code로 연결되어, 호스트-클라이언트 방식으로 실시간 멀티플레이 환경을 유지
-    private Lobby currentLobby;
-
-    public Button StartMatchButton, JoinMatchButton;
-    public TMP_InputField fieldText;
-    public Text JoinCodeText;
-
-    /// <summary>
-    /// async(비동기) -> 동시에 일어나지 않는다.
-    /// 즉, 요청이 일어날 때 까지 결과값이 나오지 않는다.
-    /// </summary>
-    private async void Start()
-    {
-        await UnityServices.InitializeAsync();
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
-
-        StartMatchButton.onClick.AddListener(() => StartMatchmaking());
-        JoinMatchButton.onClick.AddListener(() => JoinGameWithCode(fieldText.text));
-    }
-
     public async void JoinGameWithCode(string inputJoinCode)
     {
-        if(string.IsNullOrEmpty(inputJoinCode))
+        if (string.IsNullOrEmpty(inputJoinCode))
         {
             Debug.Log("유효하지 않은 Join Code입니다.");
             return;
@@ -60,7 +32,7 @@ public class Network_Manager : MonoBehaviour
             StartClient();
             Debug.Log("Join Code로 게임에 접속 성공!");
         }
-        catch(RelayServiceException e)
+        catch (RelayServiceException e)
         {
             Debug.Log($"게임 접속 실패 : {e}");
         }
@@ -76,7 +48,7 @@ public class Network_Manager : MonoBehaviour
 
         currentLobby = await FindAvailableLobby();
 
-        if(currentLobby == null)
+        if (currentLobby == null)
         {
             await CreateNewLobby();
         }
@@ -92,12 +64,12 @@ public class Network_Manager : MonoBehaviour
         try
         {
             var queryResponse = await LobbyService.Instance.QueryLobbiesAsync();
-            if(queryResponse.Results.Count > 0)
+            if (queryResponse.Results.Count > 0)
             {
                 return queryResponse.Results[0];
             }
         }
-        catch(LobbyServiceException e)
+        catch (LobbyServiceException e)
         {
             Debug.Log($"로비 찾기 실패 {e}");
         }
@@ -108,12 +80,12 @@ public class Network_Manager : MonoBehaviour
     {
         try
         {
-            currentLobby = await LobbyService.Instance.CreateLobbyAsync("랜덤매칭방", 2);
+            currentLobby = await LobbyService.Instance.CreateLobbyAsync("랜덤매칭방", maxPlayers);
             Debug.Log($"새로운 방 생성됨 {currentLobby.Id}");
             await AllocateRelayServerAndJoin(currentLobby);
             StartHost();
         }
-        catch(LobbyServiceException e)
+        catch (LobbyServiceException e)
         {
             Debug.Log($"로비 생성 실패 {e}");
         }
@@ -127,7 +99,7 @@ public class Network_Manager : MonoBehaviour
             Debug.Log($"방에 접속되었습니다. {currentLobby.Id}");
             StartClient();
         }
-        catch(LobbyServiceException e)
+        catch (LobbyServiceException e)
         {
             Debug.Log($"로비 참가 실패 {e}");
         }
@@ -142,7 +114,7 @@ public class Network_Manager : MonoBehaviour
             JoinCodeText.text = joinCode;
             Debug.Log($"Relay 서버 할당 완료. Join Code : {joinCode}");
         }
-        catch(RelayServiceException e)
+        catch (RelayServiceException e)
         {
             Debug.Log($"Relay 서버 할당 실패 {e}");
         }
@@ -152,6 +124,23 @@ public class Network_Manager : MonoBehaviour
     {
         NetworkManager.Singleton.StartHost();
         Debug.Log("호스트가 시작되었습니다.");
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnHostDisconnected;
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        OnPlayerJoined();
+    }
+
+    private void OnHostDisconnected(ulong clientId)
+    {
+        if(clientId == NetworkManager.Singleton.LocalClientId && NetworkManager.Singleton.IsHost)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnHostDisconnected;
+        }
     }
 
     private void StartClient()
