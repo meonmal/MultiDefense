@@ -15,7 +15,7 @@ public class Monster : Character
     private Image m_Fill, m_Fill_Deco;
 
 
-    private int target_Value = 0;
+    // private int target_Value = 0;
     private bool isDead = false;
 
     public override void Start()
@@ -24,28 +24,28 @@ public class Monster : Character
         base.Start();
     }
 
-    private void Update()
-    {
-        m_Fill_Deco.fillAmount = Mathf.Lerp(m_Fill_Deco.fillAmount, m_Fill.fillAmount, Time.deltaTime * 2.0f);
+    //private void Update()
+    //{
+    //    m_Fill_Deco.fillAmount = Mathf.Lerp(m_Fill_Deco.fillAmount, m_Fill.fillAmount, Time.deltaTime * 2.0f);
 
-        if (isDead == true)
-        {
-            return;
-        }
+    //    if (isDead == true)
+    //    {
+    //        return;
+    //    }
 
-        transform.position = Vector2.MoveTowards(transform.position, Character_Spawner.move_list[target_Value], Time.deltaTime * moveSpeed);
+    //    transform.position = Vector2.MoveTowards(transform.position, Character_Spawner.move_list[target_Value], Time.deltaTime * moveSpeed);
 
-        if(Vector2.Distance(transform.position, Character_Spawner.move_list[target_Value]) <= 0.0f)
-        {
-            target_Value++;
-            spriteRenderer.flipX = target_Value >= 3 ? true : false;
+    //    if(Vector2.Distance(transform.position, Character_Spawner.move_list[target_Value]) <= 0.0f)
+    //    {
+    //        target_Value++;
+    //        spriteRenderer.flipX = target_Value >= 3 ? true : false;
 
-            if(target_Value >= 4)
-            {
-                target_Value = 0;
-            }
-        }
-    }
+    //        if(target_Value >= 4)
+    //        {
+    //            target_Value = 0;
+    //        }
+    //    }
+    //}
 
     public void GetDamage(int damage)
     {
